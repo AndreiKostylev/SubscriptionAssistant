@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36408.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubscriptionAssistant", "SubscriptionAssistant\SubscriptionAssistant.csproj", "{CFB17678-6788-445F-9762-B4369D0CB66A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFB17678-6788-445F-9762-B4369D0CB66A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFB17678-6788-445F-9762-B4369D0CB66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFB17678-6788-445F-9762-B4369D0CB66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFB17678-6788-445F-9762-B4369D0CB66A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {386350C6-DDCE-42A0-A441-F1309CECC7CB}
+	EndGlobalSection
+EndGlobal
