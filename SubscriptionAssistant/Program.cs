@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using SubscriptionAssistant.Models;
+using SubscriptionAssistant.Repositories;
 
 namespace SubscriptionAssistant
 {
@@ -12,11 +13,19 @@ namespace SubscriptionAssistant
 
             // Add services to the container.
             builder.Services.AddDbContext<SubscriptionAssistantDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConnection")));
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Регистрация репозиториев в DI контейнере
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             var app = builder.Build();
 
@@ -28,13 +37,11 @@ namespace SubscriptionAssistant
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
         }
     }
 }
+
