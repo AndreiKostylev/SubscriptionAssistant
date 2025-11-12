@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SubscriptionAssistant.Models;
 using SubscriptionAssistant.Repositories;
+using SubscriptionAssistant.Services;
 
 namespace SubscriptionAssistant
 {
@@ -20,6 +21,8 @@ namespace SubscriptionAssistant
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddAutoMapper(typeof(Program));
+
             // Регистрация репозиториев в DI контейнере
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
@@ -27,7 +30,12 @@ namespace SubscriptionAssistant
             builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
