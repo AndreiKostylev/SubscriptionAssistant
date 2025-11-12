@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using SubscriptionAssistant.Models.DTO;
+using Microsoft.AspNetCore.Mvc;
 using SubscriptionAssistant.Models;
+using SubscriptionAssistant.Models.DTO;
 using SubscriptionAssistant.Repositories;
 
 namespace SubscriptionAssistant.Services
@@ -76,6 +77,39 @@ namespace SubscriptionAssistant.Services
         {
             var subscriptions = await _subscriptionRepository.GetExpiringSubscriptionsAsync(daysBeforeExpiry);
             return _mapper.Map<IEnumerable<SubscriptionDTO>>(subscriptions);
+        }
+
+        /// <summary>
+        /// Удалить подписку по ID
+        /// </summary>
+        public async Task<bool> DeleteSubscriptionAsync(int id)
+        {
+            return await _subscriptionRepository.DeleteAsync(id);
+        }
+
+        /// <summary>
+        /// Обновить подписку
+        /// </summary>
+        public async Task<SubscriptionDTO?> UpdateSubscriptionAsync(int id, UpdateSubscriptionDTO subscriptionDto)
+        {
+            var existingSubscription = await _subscriptionRepository.GetByIdAsync(id);
+            if (existingSubscription == null) return null;
+
+            // Обновляем только переданные поля
+            if (!string.IsNullOrEmpty(subscriptionDto.Name))
+                existingSubscription.Name = subscriptionDto.Name;
+
+            if (subscriptionDto.Price.HasValue)
+                existingSubscription.Price = subscriptionDto.Price.Value;
+
+            if (!string.IsNullOrEmpty(subscriptionDto.BillingCycle))
+                existingSubscription.BillingCycle = subscriptionDto.BillingCycle;
+
+            if (subscriptionDto.IsActive.HasValue)
+                existingSubscription.IsActive = subscriptionDto.IsActive.Value;
+
+            var updatedSubscription = await _subscriptionRepository.UpdateAsync(existingSubscription);
+            return _mapper.Map<SubscriptionDTO>(updatedSubscription);
         }
 
         private DateTime CalculateNextPaymentDate(DateTime startDate, string billingCycle)

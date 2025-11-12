@@ -23,5 +23,10 @@ namespace SubscriptionAssistant.Services
         /// Проверить существование пользователя по email и username
         /// </summary>
         Task<bool> UserExistsAsync(string email, string username);
+
+        /// <summary>
+        /// Удалить пользователя по ID
+        /// </summary>
+        Task<bool> DeleteUserAsync(int id);
     }
 }

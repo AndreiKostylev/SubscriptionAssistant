@@ -58,5 +58,13 @@ namespace SubscriptionAssistant.Services
         {
             return await _userRepository.UserExistsAsync(email, username);
         }
+
+        /// <summary>
+        /// Удалить пользователя по ID
+        /// </summary>
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            return await _userRepository.DeleteAsync(id);
+        }
     }
 }

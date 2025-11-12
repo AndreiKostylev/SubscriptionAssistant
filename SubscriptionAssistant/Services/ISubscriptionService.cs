@@ -28,5 +28,15 @@ namespace SubscriptionAssistant.Services
         /// Получить подписки, у которых скоро закончится оплата
         /// </summary>
         Task<IEnumerable<SubscriptionDTO>> GetExpiringSubscriptionsAsync(int daysBeforeExpiry);
+
+        /// <summary>
+        /// Удалить подписку по ID
+        /// </summary>
+        Task<bool> DeleteSubscriptionAsync(int id);
+
+        /// <summary>
+        /// Обновить подписку
+        /// </summary>
+        Task<SubscriptionDTO?> UpdateSubscriptionAsync(int id, UpdateSubscriptionDTO subscriptionDto);
     }
 }
