@@ -11,7 +11,7 @@ namespace SubscriptionAssistant.Models
         public DateTime NextPaymentDate { get; set; }
         public string BillingCycle { get; set; } = "monthly";
         public bool IsActive { get; set; } = true;
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        
 
 
         public int UserId { get; set; }

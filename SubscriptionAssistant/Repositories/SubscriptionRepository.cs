@@ -14,7 +14,6 @@ namespace SubscriptionAssistant.Repositories
                 .Include(s => s.Service)
                 .Include(s => s.Payments)
                 .Where(s => s.UserId == userId)
-                .OrderByDescending(s => s.CreatedDate)
                 .ToListAsync();
         }
 

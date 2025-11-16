@@ -7,6 +7,7 @@ namespace SubscriptionAssistant.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -20,6 +21,8 @@ namespace SubscriptionAssistant.Controllers
         /// Получить всех пользователей
         /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<UserDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -30,18 +33,21 @@ namespace SubscriptionAssistant.Controllers
         /// Получить пользователя по ID
         /// </summary>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<UserDTO>> GetUser(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);
 
             if (user == null)
             {
-                return NotFound(new
+                return NotFound(new ProblemDetails
                 {
-                    title = "Not Found",
-                    status = 404,
-                    detail = $"Пользователь с ID {id} не найден.",
-                    instance = $"/api/users/{id}"
+                    Title = "Not Found",
+                    Status = 404,
+                    Detail = $"Пользователь с ID {id} не найден.",
+                    Instance = $"/api/users/{id}"
                 });
             }
 
@@ -52,54 +58,44 @@ namespace SubscriptionAssistant.Controllers
         /// Создать нового пользователя
         /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(UserDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<UserDTO>> CreateUser([FromBody] CreateUserDTO userDto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new
+                return ValidationProblem(new ValidationProblemDetails(ModelState)
                 {
-                    title = "Bad Request",
-                    status = 400,
-                    detail = "Ошибки валидации",
-                    errors = ModelState.ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                    )
+                    Title = "Bad Request",
+                    Status = 400,
+                    Detail = "Ошибки валидации"
                 });
             }
 
-            try
-            {
-                var createdUser = await _userService.CreateUserAsync(userDto);
-                return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new
-                {
-                    title = "Bad Request",
-                    status = 400,
-                    detail = ex.Message
-                });
-            }
+            var createdUser = await _userService.CreateUserAsync(userDto);
+            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
         }
 
         /// <summary>
         /// Удалить пользователя по ID
         /// </summary>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> DeleteUser(int id)
         {
             var result = await _userService.DeleteUserAsync(id);
 
             if (!result)
             {
-                return NotFound(new
+                return NotFound(new ProblemDetails
                 {
-                    title = "Not Found",
-                    status = 404,
-                    detail = $"Пользователь с ID {id} не найден.",
-                    instance = $"/api/users/{id}"
+                    Title = "Not Found",
+                    Status = 404,
+                    Detail = $"Пользователь с ID {id} не найден.",
+                    Instance = $"/api/users/{id}"
                 });
             }
 
@@ -107,4 +103,3 @@ namespace SubscriptionAssistant.Controllers
         }
     }
 }
-
