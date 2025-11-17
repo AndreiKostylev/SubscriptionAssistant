@@ -45,7 +45,14 @@ namespace SubscriptionAssistant.Models
                 .HasForeignKey(p => p.SubscriptionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-           
+            modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Стриминговые сервисы", Description = "Видео и музыкальные платформы" },
                 new Category { Id = 2, Name = "Программное обеспечение", Description = "Подписки на ПО и приложения" },
@@ -84,6 +91,11 @@ namespace SubscriptionAssistant.Models
                 new Payment { Id = 3, Amount = 699m, PaymentDate = DateTime.UtcNow.AddMonths(-1), IsSuccessful = true, SubscriptionId = 3 },
                 new Payment { Id = 4, Amount = 799m, PaymentDate = DateTime.UtcNow.AddYears(-1), IsSuccessful = true, SubscriptionId = 4 },
                 new Payment { Id = 5, Amount = 2499m, PaymentDate = DateTime.UtcNow.AddMonths(-1), IsSuccessful = true, SubscriptionId = 5 }
+            );
+
+            modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "User", Description = "Обычный пользователь" },
+            new Role { Id = 2, Name = "Admin", Description = "Администратор" }
             );
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using System.Text.Json;
 
 namespace SubscriptionAssistant
@@ -30,8 +31,19 @@ namespace SubscriptionAssistant
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
+            if (exception is SecurityTokenException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return context.Response.WriteAsync(JsonSerializer.Serialize(new
+                {
+                    error = "Неверный токен",
+                    message = exception.Message,
+                    timestamp = DateTime.UtcNow
+                }));
+            }
+
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var response = new
             {
                 error = "Внутренняя ошибка сервера",

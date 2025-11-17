@@ -12,9 +12,10 @@ namespace SubscriptionAssistant.Profiles
            
             CreateMap<User, UserDTO>();
             CreateMap<CreateUserDTO, User>()
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => 1));
 
-          
+
             CreateMap<Subscription, SubscriptionDTO>();
             CreateMap<CreateSubscriptionDTO, Subscription>();
 

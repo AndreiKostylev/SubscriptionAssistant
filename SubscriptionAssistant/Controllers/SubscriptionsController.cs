@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionAssistant.Models.DTO;
 using SubscriptionAssistant.Services;
 
 namespace SubscriptionAssistant.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [Produces("application/json")]
     public class SubscriptionsController : ControllerBase
     {
         private readonly ISubscriptionService _subscriptionService;
