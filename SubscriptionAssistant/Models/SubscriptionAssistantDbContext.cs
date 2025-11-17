@@ -12,12 +12,14 @@ namespace SubscriptionAssistant.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         public SubscriptionAssistantDbContext(DbContextOptions<SubscriptionAssistantDbContext> options)
             : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Role>().ToTable("Role");
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Subscriptions)
@@ -68,14 +70,17 @@ namespace SubscriptionAssistant.Models
                 new Service { Id = 4, Name = "Microsoft 365", LogoUrl = "/logos/microsoft.png", BasePrice = 799m },
                 new Service { Id = 5, Name = "Adobe Creative Cloud", LogoUrl = "/logos/adobe.png", BasePrice = 2499m }
             );
-
+            modelBuilder.Entity<Role>().HasData(
+           new Role { Id = 1, Name = "User", Description = "Обычный пользователь" },
+           new Role { Id = 2, Name = "Admin", Description = "Администратор" }
+           );
             modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Username = "иванов", Email = "ivanov@example.com", PasswordHash = "hashed_password_1", CreatedAt = DateTime.UtcNow },
-                new User { Id = 2, Username = "петров", Email = "petrov@example.com", PasswordHash = "hashed_password_2", CreatedAt = DateTime.UtcNow },
-                new User { Id = 3, Username = "сидорова", Email = "sidorova@example.com", PasswordHash = "hashed_password_3", CreatedAt = DateTime.UtcNow },
-                new User { Id = 4, Username = "кузнецов", Email = "kuznetsov@example.com", PasswordHash = "hashed_password_4", CreatedAt = DateTime.UtcNow },
-                new User { Id = 5, Username = "смирнов", Email = "smirnov@example.com", PasswordHash = "hashed_password_5", CreatedAt = DateTime.UtcNow }
-            );
+        new User { Id = 1, Username = "ivanov", Email = "ivanov@example.com", PasswordHash = "hashed_password_1", CreatedAt = DateTime.UtcNow, RoleId = 1 },
+        new User { Id = 2, Username = "petrov", Email = "petrov@example.com", PasswordHash = "hashed_password_2", CreatedAt = DateTime.UtcNow, RoleId = 1 },
+        new User { Id = 3, Username = "sidorova", Email = "sidorova@example.com", PasswordHash = "hashed_password_3", CreatedAt = DateTime.UtcNow, RoleId = 1 },
+        new User { Id = 4, Username = "smirnov", Email = "smirnov@example.com", PasswordHash = "hashed_password_4", CreatedAt = DateTime.UtcNow, RoleId = 1 },
+        new User { Id = 5, Username = "kuznetsov", Email = "kuznetsov@example.com", PasswordHash = "hashed_password_5", CreatedAt = DateTime.UtcNow, RoleId = 1 }
+    );
 
             modelBuilder.Entity<Subscription>().HasData(
                 new Subscription { Id = 1, Name = "Мой Netflix Премиум", Price = 599m, StartDate = DateTime.UtcNow.AddMonths(-2), NextPaymentDate = DateTime.UtcNow.AddDays(15), BillingCycle = "ежемесячно", IsActive = true, UserId = 1, CategoryId = 1, ServiceId = 1 },
@@ -93,10 +98,7 @@ namespace SubscriptionAssistant.Models
                 new Payment { Id = 5, Amount = 2499m, PaymentDate = DateTime.UtcNow.AddMonths(-1), IsSuccessful = true, SubscriptionId = 5 }
             );
 
-            modelBuilder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "User", Description = "Обычный пользователь" },
-            new Role { Id = 2, Name = "Admin", Description = "Администратор" }
-            );
+           
         }
     }
 }

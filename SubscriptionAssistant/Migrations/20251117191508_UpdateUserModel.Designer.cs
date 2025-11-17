@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SubscriptionAssistant.Models;
@@ -11,9 +12,11 @@ using SubscriptionAssistant.Models;
 namespace SubscriptionAssistant.Migrations
 {
     [DbContext(typeof(SubscriptionAssistantDbContext))]
-    partial class SubscriptionAssistantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251117191508_UpdateUserModel")]
+    partial class UpdateUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
