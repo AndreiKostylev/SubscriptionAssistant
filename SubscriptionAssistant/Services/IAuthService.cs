@@ -5,19 +5,10 @@ namespace SubscriptionAssistant.Services
 {
     public interface IAuthService
     {
-        /// <summary>
-        /// Аутентификация пользователя
-        /// </summary>
         Task<AuthResponse?> LoginAsync(LoginRequest loginRequest);
-
-        /// <summary>
-        /// Регистрация нового пользователя
-        /// </summary>
         Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest);
-
-        /// <summary>
-        /// Генерация JWT токена
-        /// </summary>
         string GenerateJwtToken(User user);
+        Task<bool> HasAccessAsync(int userId, string requiredRole);
+        Task<User?> GetUserByIdAsync(int userId);
     }
 }

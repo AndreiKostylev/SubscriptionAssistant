@@ -8,18 +8,13 @@ namespace SubscriptionAssistant.Repositories
     {
         public UserRepository(SubscriptionAssistantDbContext context) : base(context) { }
 
-        /// <summary>
-        /// Получить пользователя по email с ролью
-        /// </summary>
         public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
-        /// <summary>
-        /// Получить пользователя с ролью
-        /// </summary>
+
         public async Task<User?> GetByIdWithRoleAsync(int id)
         {
             return await _context.Users
@@ -27,9 +22,6 @@ namespace SubscriptionAssistant.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        /// <summary>
-        /// Получить пользователя по username с ролью
-        /// </summary>
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _context.Users
@@ -49,9 +41,16 @@ namespace SubscriptionAssistant.Repositories
                 .ThenInclude(s => s.Service)
                 .Include(u => u.Subscriptions)
                 .ThenInclude(s => s.Category)
+                .Include(u => u.Role)
                 .Where(u => u.Subscriptions.Any())
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<User>> GetAllWithRoleAsync()
+        {
+            return await _dbSet
+                .Include(u => u.Role)
+                .ToListAsync();
+        }
     }
 }

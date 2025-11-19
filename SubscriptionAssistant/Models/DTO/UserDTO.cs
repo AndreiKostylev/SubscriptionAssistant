@@ -15,5 +15,9 @@ namespace SubscriptionAssistant.Models.DTO
         public string Email { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
+
+        // Добавляем поля для роли
+        public string RoleName { get; set; } = string.Empty;
+        public int RoleId { get; set; }
     }
 }

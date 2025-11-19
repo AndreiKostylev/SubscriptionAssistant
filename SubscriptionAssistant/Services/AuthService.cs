@@ -22,9 +22,6 @@ namespace SubscriptionAssistant.Services
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Аутентификация пользователя
-        /// </summary>
         public async Task<AuthResponse?> LoginAsync(LoginRequest loginRequest)
         {
             var user = await _userRepository.GetByEmailAsync(loginRequest.Login)
@@ -33,8 +30,10 @@ namespace SubscriptionAssistant.Services
             if (user == null || !VerifyPassword(loginRequest.Password, user.PasswordHash))
                 return null;
 
-            var token = GenerateJwtToken(user);
-            var userDto = _mapper.Map<UserDTO>(user);
+            // Получаем пользователя с ролью
+            var userWithRole = await _userRepository.GetByIdWithRoleAsync(user.Id);
+            var token = GenerateJwtToken(userWithRole ?? user);
+            var userDto = _mapper.Map<UserDTO>(userWithRole ?? user);
 
             return new AuthResponse
             {
@@ -44,9 +43,6 @@ namespace SubscriptionAssistant.Services
             };
         }
 
-        /// <summary>
-        /// Регистрация нового пользователя
-        /// </summary>
         public async Task<AuthResponse> RegisterAsync(RegisterRequest registerRequest)
         {
             if (await _userRepository.UserExistsAsync(registerRequest.Email, registerRequest.Username))
@@ -62,8 +58,11 @@ namespace SubscriptionAssistant.Services
             };
 
             var createdUser = await _userRepository.CreateAsync(user);
-            var token = GenerateJwtToken(createdUser);
-            var userDto = _mapper.Map<UserDTO>(createdUser);
+
+            // Получаем пользователя с ролью
+            var userWithRole = await _userRepository.GetByIdWithRoleAsync(createdUser.Id);
+            var token = GenerateJwtToken(userWithRole ?? createdUser);
+            var userDto = _mapper.Map<UserDTO>(userWithRole ?? createdUser);
 
             return new AuthResponse
             {
@@ -73,25 +72,21 @@ namespace SubscriptionAssistant.Services
             };
         }
 
-        /// <summary>
-        /// Генерация JWT токена
-        /// </summary>
         public string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            
-            var roleName = user.Role?.Name ?? "User"; 
+            var roleName = user.Role?.Name ?? "User";
 
             var claims = new[]
             {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role, roleName) 
-    };
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, roleName)
+            };
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
@@ -102,6 +97,22 @@ namespace SubscriptionAssistant.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<bool> HasAccessAsync(int userId, string requiredRole)
+        {
+            var user = await _userRepository.GetByIdWithRoleAsync(userId);
+            if (user == null) return false;
+
+            // Admin имеет доступ ко всему
+            if (user.Role?.Name == "Admin") return true;
+
+            return user.Role?.Name == requiredRole;
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _userRepository.GetByIdWithRoleAsync(userId);
         }
 
         private bool VerifyPassword(string password, string passwordHash)

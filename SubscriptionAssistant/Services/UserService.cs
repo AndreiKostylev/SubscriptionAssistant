@@ -16,27 +16,18 @@ namespace SubscriptionAssistant.Services
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Получить всех пользователей
-        /// </summary>
         public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
         {
-            var users = await _userRepository.GetAllAsync();
+            var users = await _userRepository.GetAllWithRoleAsync();
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        /// <summary>
-        /// Получить пользователя по ID
-        /// </summary>
         public async Task<UserDTO?> GetUserByIdAsync(int id)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdWithRoleAsync(id);
             return user == null ? null : _mapper.Map<UserDTO>(user);
         }
 
-        /// <summary>
-        /// Создать нового пользователя
-        /// </summary>
         public async Task<UserDTO> CreateUserAsync(CreateUserDTO userDto)
         {
             if (await _userRepository.UserExistsAsync(userDto.Email, userDto.Username))
@@ -46,25 +37,35 @@ namespace SubscriptionAssistant.Services
 
             var user = _mapper.Map<User>(userDto);
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            user.CreatedAt = DateTime.UtcNow;
+            user.RoleId = 1; // Роль "User" по умолчанию
 
             var createdUser = await _userRepository.CreateAsync(user);
-            return _mapper.Map<UserDTO>(createdUser);
+            var userWithRole = await _userRepository.GetByIdWithRoleAsync(createdUser.Id);
+            return _mapper.Map<UserDTO>(userWithRole!);
         }
 
-        /// <summary>
-        /// Проверить существование пользователя по email и username
-        /// </summary>
         public async Task<bool> UserExistsAsync(string email, string username)
         {
             return await _userRepository.UserExistsAsync(email, username);
         }
 
-        /// <summary>
-        /// Удалить пользователя по ID
-        /// </summary>
         public async Task<bool> DeleteUserAsync(int id)
         {
             return await _userRepository.DeleteAsync(id);
+        }
+
+        public async Task<UserDTO?> UpdateUserRoleAsync(int id, int roleId)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null) return null;
+
+            user.RoleId = roleId;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var updatedUser = await _userRepository.UpdateAsync(user);
+            var userWithRole = await _userRepository.GetByIdWithRoleAsync(updatedUser.Id);
+            return _mapper.Map<UserDTO>(userWithRole);
         }
     }
 }
